@@ -30,13 +30,17 @@ import java.util.NoSuchElementException;
  *
  */
 public class Steque<Item> implements Iterable<Item> {
-
-
+    private Node first, last;
+	
+	private class Node {
+		Item item;
+		Node next;
+    }
     /**
      * constructs a steque object.
      */
     public Steque() {
-
+        // first = last = null;
     }
     
     
@@ -45,7 +49,14 @@ public class Steque<Item> implements Iterable<Item> {
      * @param item Item to be inserted.
      */
     public void enqueue(Item item) {
-
+        Node oldLast = last;
+		last = new Node();
+		last.item = item;
+		last.next = null;
+		if (first == null)
+			first = last;
+		else
+			oldLast.next = last;
     }
     
     
@@ -54,6 +65,12 @@ public class Steque<Item> implements Iterable<Item> {
      * @param item Item to be inserted.
      */
     public void push(Item item) {
+        Node oldFirst = first;
+		first = new Node();
+		first.item = item;
+		first.next = oldFirst;
+		if (last == null) 
+			last = first;
 
     }
     
@@ -62,6 +79,11 @@ public class Steque<Item> implements Iterable<Item> {
      * @return Item object from steque.
      */
     public Item pop() {
+        if (isEmpty())
+            throw new NoSuchElementException("No element exists in Steque");
+        Item item = first.item;
+        first = first.next;
+        return item;                 
 
     }
     
@@ -70,7 +92,7 @@ public class Steque<Item> implements Iterable<Item> {
      * @return true if steque is empty, false otherwise.
      */
     public boolean isEmpty() {
-
+        return first == null || last == null;
     }
     
     /**
@@ -78,7 +100,11 @@ public class Steque<Item> implements Iterable<Item> {
      * @return size as integer.
      */
     public int size() {
-
+        int count = 0;
+		for(Item item : this) {
+			count++;
+		}
+		return count;
     }
     
     /**
@@ -87,6 +113,44 @@ public class Steque<Item> implements Iterable<Item> {
      * 
      */
     public Iterator<Item> iterator() {
+        return new LinkedIterator();
+    }
+    public class LinkedIterator implements Iterator<Item> {
+        Node current = first;
 
+    
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Item next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            Item item = current.item;
+            current = current.next; 
+            return item;
+        }
+    }
+
+    public static void main(String[] args){
+        Steque<Integer> steque = new Steque<Integer>();
+        steque.push(40);
+        steque.enqueue(10);
+        steque.push(30);
+        steque.enqueue(70);
+        steque.push(50);
+        // steque.pop();
+        Iterator<Integer> iterate = steque.iterator();
+    
+        System.out.println("Element in steque :");
+    
+        while (iterate.hasNext()){
+            System.out.println(iterate.next());
+        }
     }
 }
+
