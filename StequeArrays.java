@@ -29,18 +29,14 @@ import java.util.NoSuchElementException;
  * @version 1.0
  *
  */
-public class Steque<Item> implements Iterable<Item> {
-    private Node first, last;
-	
-	private class Node {
-		Item item;
-		Node next;
-    }
+public class StequeArrays<Item> implements Iterable<Item> {
+    private Item[] array = (Item[]) new Object[8]; 
+    private int n = 0;
     /**
      * constructs a steque object.
      */
-    public Steque() {
-        // first = last = null;
+    public StequeArrays() {
+
     }
     
     
@@ -49,14 +45,17 @@ public class Steque<Item> implements Iterable<Item> {
      * @param item Item to be inserted.
      */
     public void enqueue(Item item) {
-        Node oldLast = last;
-		last = new Node();
-		last.item = item;
-		last.next = null;
-		if (first == null)
-			first = last;
-		else
-			oldLast.next = last;
+        if (item==null){
+            throw new IllegalArgumentException("pass an element to enqueue");
+        }
+        if (n==array.length){
+            Item[] newArray = (Item[]) new Object[n*2];
+            for(int i=0; i < n; i++){
+                newArray[i] = array[i];
+            }
+            array = newArray;
+        }
+        array[n++]=item;
     }
     
     
@@ -65,34 +64,54 @@ public class Steque<Item> implements Iterable<Item> {
      * @param item Item to be inserted.
      */
     public void push(Item item) {
-        Node oldFirst = first;
-		first = new Node();
-		first.item = item;
-		first.next = oldFirst;
-		if (last == null) 
-			last = first;
-
+        if (item==null){
+            throw new IllegalArgumentException("pass an element to push");
+        }
+        if (n==array.length){
+            Item[] newArray = (Item[]) new Object[n*2];
+            for(int i=0; i < n; i++){
+                newArray[i] = array[i];
+            }
+            array = newArray;
+        }  
+        for(int i=n; i>0; i--){
+            array[i] = array[i-1];
+        }
+        array[0]=item;
+        n++;
     }
     
     /**
      * pops a least recent item in steque.
      * @return Item object from steque.
      */
-    public Item pop() {
-        if (isEmpty())
-            throw new NoSuchElementException("No element exists in Steque");
-        Item item = first.item;
-        first = first.next;
-        return item;                 
+    public Item pop(){
 
+        if(isEmpty()){
+            throw new IllegalStateException("There is no element to pop");
+        }
+        if(n < array.length/4){
+            Item[] newArray = (Item[]) new Object[n*2];
+            for(int i=0; i < n; i++){
+                newArray[i] = array[i];
+            }
+            array = newArray;
+        }
+        Item pop = array[0];
+        for (int i = 0; i <= n; i++) {
+            array[i] = array[i+1];
+        }
+        n--;
+        return pop;
     }
+
     
     /**
      * checks to see if steque is empty.
      * @return true if steque is empty, false otherwise.
      */
     public boolean isEmpty() {
-        return first == null || last == null;
+        return n == 0;
     }
     
     /**
@@ -100,11 +119,7 @@ public class Steque<Item> implements Iterable<Item> {
      * @return size as integer.
      */
     public int size() {
-        int count = 0;
-		for(Item item : this) {
-			count++;
-		}
-		return count;
+        return n;
     }
     
     /**
@@ -113,31 +128,29 @@ public class Steque<Item> implements Iterable<Item> {
      * 
      */
     public Iterator<Item> iterator() {
-        return new LinkedIterator();
+        return new StequeArraysIterator();
     }
-    public class LinkedIterator implements Iterator<Item> {
-        Node current = first;
-
-    
-
-        public boolean hasNext() {
-            return current != null;
+    private class StequeArraysIterator implements Iterator<Item> {
+        private int i = 0;
+        public boolean hasNext(){
+            return i < n;
         }
-
         public void remove() {
             throw new UnsupportedOperationException();
         }
 
         public Item next() {
-            if (!hasNext()) throw new NoSuchElementException();
-            Item item = current.item;
-            current = current.next; 
+            if (!hasNext()){
+                throw new NoSuchElementException("steque running out of element");
+            }
+            Item item = array[i];
+            i++;
             return item;
         }
     }
 
     public static void main(String[] args){
-        Steque<Integer> steque = new Steque<Integer>();
+        StequeArrays<Integer> steque =new StequeArrays<Integer>();
         steque.push(40);
         steque.enqueue(10);
         steque.push(30);
@@ -145,12 +158,12 @@ public class Steque<Item> implements Iterable<Item> {
         steque.push(50);
         steque.pop();
         Iterator<Integer> iterate = steque.iterator();
-    
-        System.out.println("Element in steque :");
-    
-        while (iterate.hasNext()){
+
+        System.out.println("Elements in steque:");
+
+        while(iterate.hasNext()){
             System.out.println(iterate.next());
+
         }
     }
 }
-
